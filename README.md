@@ -12,3 +12,11 @@ go-socks5 Multi-network Interface 多网卡下的socks5服务
 指定socks5服务发包走哪个网口  
 默认不需账号密码认证（内部使用，也用不到鉴权）  
 ~~比默认socks5 server更安全。单项隔离？，只能从一个A网络代理到B网络，不能由B网络访问到A网络。（需要iptables配置）~~
+
+# Usage  
+
+Usage of main.exe:  
+  -listen string  
+        监听的socks5服务端口 (default "10880")  
+  -outip string  
+        想要从那个ip出口发包  
