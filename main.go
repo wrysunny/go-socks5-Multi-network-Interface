@@ -125,7 +125,7 @@ func handleConn(conn net.Conn) {
 	dialer := &net.Dialer{
 		LocalAddr: &net.TCPAddr{
 			IP:   net.ParseIP(outip),
-			Port: 0,
+			//Port: 0,
 		},
 	}
 	target, err := dialer.Dial("tcp", net.JoinHostPort(addr, port))
