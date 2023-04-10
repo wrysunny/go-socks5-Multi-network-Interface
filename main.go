@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/binary"
 	"flag"
 	"fmt"
@@ -8,25 +9,25 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 )
 
 var (
-	outip  string
-	listen string
+	srcip      string
+	listenport string
 )
 
 func main() {
-
-	flag.StringVar(&outip, "outip", "", "想要从那个ip出口发包")
-	flag.StringVar(&listen, "listen", "10880", "监听的socks5服务端口")
-
+	//  flag parse.
+	flag.StringVar(&srcip, "srcip", "", "which one ip send data?")
+	flag.StringVar(&listenport, "listen", "10880", "socks5 server listen port.")
 	flag.Parse()
-	if outip == "" || listen == "" {
+	if srcip == "" || listenport == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
-
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%s", listen))
+	// listen port
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%s", listenport))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -121,14 +122,17 @@ func handleConn(conn net.Conn) {
 	portBytes := buf[n-2 : n]
 	port = fmt.Sprintf("%d", binary.BigEndian.Uint16(portBytes))
 
-	// dial target server
+	// 指定ip
 	dialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
 		LocalAddr: &net.TCPAddr{
-			IP:   net.ParseIP(outip),
+			IP: net.ParseIP(srcip),
 			//Port: 0,
 		},
 	}
-	target, err := dialer.Dial("tcp", net.JoinHostPort(addr, port))
+	target, err := dialer.DialContext(context.Background(), "tcp", net.JoinHostPort(addr, port))
+	//target, err := dialer.Dial("tcp", net.JoinHostPort(addr, port))
 	//target, err := net.Dial("tcp", net.JoinHostPort(addr, port))
 	if err != nil {
 		log.Println(err)
